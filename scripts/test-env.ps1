@@ -1,0 +1,10 @@
+$env:PYTHONPATH = "$PSScriptRoot/../app;$PSScriptRoot/.."
+$env:MYSQL_HOST = '127.0.0.1'
+$env:MYSQL_PORT = '3307'
+$env:MYSQL_USER = 'hmdp_test'
+$env:MYSQL_PASSWORD = 'hmdp_test_local'
+$env:MYSQL_DATABASE = 'hmdp_test'
+$env:REDIS_HOST = '127.0.0.1'
+$env:REDIS_PORT = '6380'
+$env:REDIS_DB = '0'
+$env:IMAGE_UPLOAD_DIR = "$PSScriptRoot/../.local/uploads"

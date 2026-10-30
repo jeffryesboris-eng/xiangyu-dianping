@@ -11,6 +11,13 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
+    DB_POOL_SIZE: int = 8
+    DB_MAX_OVERFLOW: int = 2
+    DB_POOL_TIMEOUT: int = 5
+    THREAD_POOL_SIZE: int = 8
+    ORDER_RECLAIM_MS: int = 30000
+    ORDER_CONSUMERS: int = 1
+    DEMO_LOGIN: bool = False
     SECRET_KEY = 'abc123'
 
     MYSQL_HOST: str = 'localhost'
@@ -24,6 +31,8 @@ class Settings(BaseSettings):
     USER_NICK_NAME_PREFIX = 'user_'
 
     REDIS_HOST: str = '192.168.31.57'
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
     LOGIN_CODE_KEY_PREFIX: str = 'hmdp:login:code:'
     LOGIN_CODE_EXPIRE: int = 2 * 60
     LOGIN_USER_OBJ_KEY_PREFIX: str = 'hmdp:login:user:'

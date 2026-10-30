@@ -33,7 +33,7 @@ class UserCRUD:
 
     def create_user_with_phone(self, phone: str) -> models.User:
         with Session(engine) as sess:
-            user = models.User(phone=phone,
+            user = models.User(phone=phone, password='',
                                nick_name=settings.USER_NICK_NAME_PREFIX + ''.join(random.sample(string.hexdigits, 10)))
             sess.add(user)
             sess.commit()

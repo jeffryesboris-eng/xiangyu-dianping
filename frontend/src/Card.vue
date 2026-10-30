@@ -1,0 +1,8 @@
+<script setup lang="ts">
+import {image,type Shop,type Note} from './api'
+import {useSession} from './session'
+defineProps<{shop?:Shop;note?:Note}>()
+defineEmits<{like:[note:Note]}>()
+const session=useSession()
+</script>
+<template><article class="card"><template v-if="shop"><RouterLink :to="'/shop/'+shop.id"><div class="cover"><img v-if="image(shop.images)" :src="image(shop.images)" alt="商户环境" @error="($event.target as HTMLImageElement).style.display='none'"><span v-else>☕</span><span class="cover-label">街巷好店 · LOCAL FINDS</span></div><div class="card-body"><h3>{{shop.name}}</h3><div class="row between"><span class="rating">★ {{(shop.score/10).toFixed(1)}}</span><small>{{shop.avgPrice?'人均 ¥'+shop.avgPrice:'价格待补充'}}</small></div><p class="meta">{{shop.address}}</p><div class="row between"><span class="tag">{{shop.area||'城市生活'}}</span><small v-if="shop.distance!==undefined">距你 {{Math.round(shop.distance)}} m</small></div></div></RouterLink></template><template v-if="note"><RouterLink :to="'/note/'+note.id"><div class="cover note-cover"><img v-if="image(note.images)" :src="image(note.images)" alt="探店照片" @error="($event.target as HTMLImageElement).style.display='none'"><span v-else>✦</span><span class="cover-label">CITY STORIES / 探店手记</span></div><div class="card-body"><h3>{{note.title}}</h3><p class="muted note-content">{{note.content}}</p></div></RouterLink><div class="card-body row between note-author"><RouterLink :to="'/notes?user='+note.userId">{{note.name||'城市探索者'}}</RouterLink><button class="like" :aria-label="note.isLike?'取消点赞':'点赞'" :aria-pressed="note.isLike" @click="session.requireLogin()&&$emit('like',note)">{{note.isLike?'♥':'♡'}} {{note.liked}}</button></div></template></article></template>

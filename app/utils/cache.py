@@ -1,3 +1,4 @@
+from db.async_bridge import run_db
 """
     cache
     ~~~
@@ -13,7 +14,7 @@ import datetime
 import threading
 from typing import Callable, Hashable, Any, Sequence, Type, Optional
 
-from aioredis import Redis
+from redis.asyncio import Redis
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -48,7 +49,7 @@ class CacheClient:
         key = key_prefix + str(pk)
         json_str = await self.redis.get(key)
         if json_str is None:
-            model = db_fallback(pk)
+            model = await run_db(db_fallback, pk)
             if model:
                 await self.set(key, model, expire)
             else:
@@ -71,7 +72,9 @@ class CacheClient:
         key = key_prefix + str(pk)
         json_str = await self.redis.get(key)
         if json_str is None:
-            model = None
+            model = await run_db(db_fallback, pk)
+            if model is not None:
+                await self.set_with_logical_expire(key, model, expire)
         else:
             if not json_str:
                 print('query_shop_by_id 没有打到mysql')
@@ -88,7 +91,7 @@ class CacheClient:
                         async def rebuild_cache_unlock():
                             print('inner thead id', threading.currentThread().ident)
                             try:
-                                db_model = db_fallback(pk)
+                                db_model = await run_db(db_fallback, pk)
                                 await asyncio.sleep(10)
                                 await self.set_with_logical_expire(key, db_model, expire)
                             finally:

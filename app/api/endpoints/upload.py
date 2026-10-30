@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.post('/blog',
              response_model=schemas.GenericResponseModel)
-async def upload_image(
+def upload_image(
         *,
         file: UploadFile
 ):
@@ -36,7 +36,7 @@ async def upload_image(
 
 @router.get('/blog/delete',
             response_model=schemas.GenericResponseModel)
-async def delete_image(
+def delete_image(
         *,
         name: str = Query()
 ):

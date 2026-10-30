@@ -21,7 +21,7 @@ import redis
 from core.config import settings
 from db.mysql import engine
 
-redis_url = f'redis://{settings.REDIS_HOST}'
+redis_url = f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}'
 aio_redis = aioredis.from_url(redis_url, decode_responses=True)
 redis = redis.Redis.from_url(redis_url, decode_responses=True)
 

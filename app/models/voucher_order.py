@@ -11,12 +11,13 @@ import datetime
 from typing import Optional
 
 from sqlmodel import SQLModel, Field
+from sqlalchemy import Column, BigInteger
 
 
 class VoucherOrder(SQLModel, table=True):
     __tablename__ = 'tb_voucher_order'
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, sa_column=Column(BigInteger, primary_key=True, autoincrement=False))
     create_time: datetime.datetime = Field(default=datetime.datetime.now(), alias='createTime')
     update_time: datetime.datetime = Field(default_factory=datetime.datetime.now, alias='updateTime')
 

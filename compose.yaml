@@ -1,0 +1,77 @@
+x-app: &app
+  build: .
+  image: xiangyu:local
+  environment: &environment
+    MYSQL_HOST: mysql
+    MYSQL_PORT: 3306
+    MYSQL_DATABASE: hmdp_course
+    MYSQL_USER: hmdp_test
+    MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
+    REDIS_DB: 1
+    IMAGE_UPLOAD_DIR: /data/uploads
+    DEMO_LOGIN: ${DEMO_LOGIN:-false}
+    DB_POOL_SIZE: 8
+    DB_MAX_OVERFLOW: 2
+    THREAD_POOL_SIZE: 8
+    ORDER_CONSUMERS: 1
+  volumes:
+    - uploads:/data/uploads
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: hmdp_course
+      MYSQL_USER: hmdp_test
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_ROOT_PASSWORD" mysqladmin ping -h localhost -uroot --silent']
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 30s
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    command: [redis-server, --appendonly, 'yes']
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  init:
+    <<: *app
+    command: [python, docker/bootstrap.py]
+    restart: 'no'
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  app:
+    <<: *app
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${APP_PORT:-8081}:8081'
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/health', timeout=5)"]
+      interval: 15s
+      timeout: 8s
+      retries: 5
+      start_period: 15s
+    stop_grace_period: 30s
+volumes:
+  mysql-data:
+  redis-data:
+  uploads:
